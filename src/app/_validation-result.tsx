@@ -1,35 +1,23 @@
 "use client";
-import { ResponseData } from "@/types";
+import { ResponseValidator } from "@/types";
+import { fetchData, isResponseValidator } from "@/utils/fetchData";
 import { FC, useEffect, useState } from "react";
 interface Props {
-  idGenerator: string;
+  valueToSend: string;
 }
 
-const server = "http://localhost:3000";
+const server =
+  process.env.NEXT_PUBLIC_BASE_URL_VALIDATOR ?? "http://localhost:3000";
 
-const isResponseData = (data: any): data is ResponseData => {
-  return data && data.isValid !== undefined && data.message !== undefined;
-};
-
-const ValidationResult: FC<Props> = ({ idGenerator }) => {
-  const [data, setData] = useState<ResponseData | null>(null);
+const ValidationResult: FC<Props> = ({ valueToSend }) => {
+  const [data, setData] = useState<ResponseValidator | null>(null);
 
   useEffect(() => {
-    const fetchData = async () => {
-      const response = await fetch(`${server}/${idGenerator}`, {
-        method: "GET",
-        headers: { "Content-Type": "application/json" },
-      });
-      const data = await response.json();
-      console.log(data);
-      if (!isResponseData(data)) {
-        throw new Error("Invalid response");
-      }
-      setData(data);
-    };
-
-    fetchData();
-  }, [idGenerator]);
+    const url = `${server}/${valueToSend}`;
+    fetchData(url).then((responseData) => {
+      if (isResponseValidator(responseData)) setData(responseData);
+    });
+  }, [valueToSend]);
 
   if (!data) {
     return <span>Loading...</span>;
@@ -41,8 +29,8 @@ const ValidationResult: FC<Props> = ({ idGenerator }) => {
       : [];
 
   return (
-    <div className="flex flex-col items-center justify-center w-full">
-      <h2 className="text-6xl font-bold text-center">Validation Result</h2>
+    <div className="flex flex-col items-center gap-5 justify-center w-full">
+      <h4 className="text-5xl font-bold text-center">Validation Result</h4>
       <span className="text-2xl font-bold text-center">{`Is Valid token: ${
         data.isValid ? "yes" : "no"
       }`}</span>
