@@ -18,7 +18,9 @@ export function GET(
     );
   }
 
-  const privateKey = fs.readFileSync("../key");
+  const keyRoute = process.env.SECRET_FILE ?? "../../../../key";
+
+  const privateKey = fs.readFileSync(keyRoute);
   if (!privateKey) {
     return NextResponse.json(
       {

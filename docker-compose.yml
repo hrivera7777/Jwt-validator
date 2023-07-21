@@ -1,0 +1,34 @@
+services:
+  validator:
+    build:
+      context: "${DOCKERFILE_DIR_VALIDATOR}"
+      dockerfile: Dockerfile
+    secrets:
+      - key
+    ports:
+      - "3000:3000"
+    networks:
+      back_tier:
+        ipv4_address: 10.5.0.6
+  generator:
+    build:
+      context: "${DOCKERFILE_DIR_GENERATOR}"
+      dockerfile: Dockerfile
+    secrets:
+      - key
+    networks:
+      back_tier:
+         ipv4_address: 10.5.0.5
+    expose:
+      - 3001
+secrets:
+  key:
+    file: "${SECRET_KEY_FILE}" 
+
+networks:
+  back_tier:    
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.5.0.0/16
+          gateway: 10.5.0.1
