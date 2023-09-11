@@ -1,24 +1,44 @@
-import { ResponseValidator } from "@/types";
+import { ResponseGetTokens, ResponseValidator } from "@/types";
 import { ResponseGenerator } from "@/types";
 
-export const isResponseValidator = (data: any): data is ResponseValidator => {
-  return data && data.isValid !== undefined && data.message !== undefined;
+export const isResponseValidator = (
+  data: unknown
+): data is ResponseValidator => {
+  return (
+    data !== undefined &&
+    (data as ResponseValidator).isValid !== undefined &&
+    (data as ResponseValidator).message !== undefined
+  );
 };
 
-export const isResponseGenerator = (data: any): data is ResponseGenerator => {
-  return data && data.token !== undefined;
+export const isResponseGenerator = (
+  data: unknown
+): data is ResponseGenerator => {
+  return data !== undefined && (data as ResponseGenerator).token !== undefined;
 };
 
-export const fetchData = async (url: string) => {
+export const isResponseGetTokens = (
+  data: unknown
+): data is ResponseGetTokens => {
+  return data !== undefined && (data as ResponseGetTokens).data !== undefined;
+};
+
+export const fetchData = async (url: string, tags?: string[]) => {
   const response = await fetch(url, {
     method: "GET",
     headers: { "Content-Type": "application/json" },
+    next: {
+      tags,
+    },
   });
   const data = await response.json();
   if (isResponseValidator(data)) {
     return data;
   }
   if (isResponseGenerator(data)) {
+    return data;
+  }
+  if (isResponseGetTokens(data)) {
     return data;
   }
 

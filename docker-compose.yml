@@ -1,15 +1,11 @@
 services:
-  validator:
-    build:
-      context: "${DOCKERFILE_DIR_VALIDATOR}"
-      dockerfile: Dockerfile
-    secrets:
-      - key
-    ports:
-      - "3000:3000"
+  redis:
+    image: redis
     networks:
       back_tier:
-        ipv4_address: 10.5.0.6
+         ipv4_address: 10.5.0.7
+    expose:
+      - 6379
   generator:
     build:
       context: "${DOCKERFILE_DIR_GENERATOR}"
@@ -21,9 +17,24 @@ services:
          ipv4_address: 10.5.0.5
     expose:
       - 3001
+
+  validator:
+    depends_on: 
+      - "redis"
+      - "generator"
+    build:
+      context: "${DOCKERFILE_DIR_VALIDATOR}"
+      dockerfile: Dockerfile
+    secrets:
+      - key
+    ports:
+      - "3000:3000"
+    networks:
+      back_tier:
+        ipv4_address: 10.5.0.6
 secrets:
   key:
-    file: "${SECRET_KEY_FILE}" 
+    file: "${SECRET_KEY_FILE_HOST}" 
 
 networks:
   back_tier:    

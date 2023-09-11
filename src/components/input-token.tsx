@@ -6,6 +6,7 @@ interface Props {
 }
 
 const InputToken: FC<Props> = ({ setValue, text }) => {
+
   return (
     <div className="flex flex-col gap-2 items-center justify-center w-full">
       <h2 className="text-6xl font-bold text-center">{text}</h2>

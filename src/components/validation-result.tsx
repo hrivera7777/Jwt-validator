@@ -1,23 +1,27 @@
 "use client";
 import { ResponseValidator } from "@/types";
 import { fetchData, isResponseValidator } from "@/utils/fetchData";
+import { useRouter } from "next/navigation";
 import { FC, useEffect, useState } from "react";
 interface Props {
   valueToSend: string;
 }
 
 const server =
-  process.env.NEXT_PUBLIC_BASE_URL_VALIDATOR ?? "http://localhost:3000";
+  process.env.NEXT_PUBLIC_BASE_URL_VALIDATOR ?? "http://localhost:3000/api";
 
 const ValidationResult: FC<Props> = ({ valueToSend }) => {
   const [data, setData] = useState<ResponseValidator | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
-    const url = `${server}/${valueToSend}`;
+    if (valueToSend === "") return;
+    const url = `${server}/validate/${valueToSend}`;
     fetchData(url).then((responseData) => {
       if (isResponseValidator(responseData)) setData(responseData);
+      router.refresh();
     });
-  }, [valueToSend]);
+  }, [router, valueToSend]);
 
   if (!data) {
     return <span>Loading...</span>;
